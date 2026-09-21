@@ -520,6 +520,10 @@ main { padding-block: 30px 80px; min-height: 50vh; }
   padding: 24px 16px calc(48px + env(safe-area-inset-bottom, 0px));
 }
 
+.overlay[hidden] {
+  display: none;
+}
+
 .sheet {
   width: 100%;
   max-width: 720px;
