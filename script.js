@@ -4,6 +4,9 @@ const STORAGE_KEYS = {
   authors: 'okuma-arşivi-authors',
 };
 
+const SUPABASE_URL = 'https://ksheklowlglsiccupukl.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtzaGVrbG93bGdsc2ljY3VwdWtsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk5OTU0NDksImV4cCI6MjEwNTU3MTQ0OX0.Q_bW_JrzsscQaFeXEL06aV2gk6iLbf3ZOvp_J1Ffiso';
+
 const STATUS_LABELS = {
   okundu: 'Okundu',
   okuyor: 'Okuyorum',
@@ -78,7 +81,7 @@ function getSpineColor(value = '') {
   return SPINE_COLORS[hash % SPINE_COLORS.length];
 }
 
-function loadFromStorage() {
+async function loadFromStorage() {
   const savedTheme = localStorage.getItem(STORAGE_KEYS.theme);
   if (savedTheme === 'dark' || savedTheme === 'light') {
     state.theme = savedTheme;
@@ -97,12 +100,46 @@ function loadFromStorage() {
   } catch {
     state.authors = [];
   }
+
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/archive_data?select=kind,data`, {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    });
+    if (!response.ok) throw new Error(`Supabase load failed: ${response.status}`);
+
+    const rows = await response.json();
+    const remoteBooks = rows.find((row) => row.kind === 'books')?.data;
+    const remoteAuthors = rows.find((row) => row.kind === 'authors')?.data;
+    if (Array.isArray(remoteBooks)) state.books = remoteBooks;
+    if (Array.isArray(remoteAuthors)) state.authors = remoteAuthors;
+    localStorage.setItem(STORAGE_KEYS.books, JSON.stringify(state.books));
+    localStorage.setItem(STORAGE_KEYS.authors, JSON.stringify(state.authors));
+  } catch (error) {
+    console.warn('Supabase verilerine erişilemedi; yerel veriler kullanılıyor.', error);
+  }
 }
 
 function persist() {
   localStorage.setItem(STORAGE_KEYS.theme, state.theme);
   localStorage.setItem(STORAGE_KEYS.books, JSON.stringify(state.books));
   localStorage.setItem(STORAGE_KEYS.authors, JSON.stringify(state.authors));
+
+  fetch(`${SUPABASE_URL}/rest/v1/archive_data?on_conflict=id`, {
+    method: 'POST',
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+      Prefer: 'resolution=merge-duplicates,return=minimal',
+    },
+    body: JSON.stringify([
+      { id: 'books', kind: 'books', data: state.books, updated_at: new Date().toISOString() },
+      { id: 'authors', kind: 'authors', data: state.authors, updated_at: new Date().toISOString() },
+    ]),
+  }).catch((error) => console.warn('Supabase kaydı başarısız.', error));
 }
 
 function escapeHtml(value = '') {
@@ -688,8 +725,12 @@ function initEvents() {
   });
 }
 
-loadFromStorage();
-setTheme(state.theme);
-setView('books');
-renderAll();
-initEvents();
+async function init() {
+  await loadFromStorage();
+  setTheme(state.theme);
+  setView('books');
+  renderAll();
+  initEvents();
+}
+
+init();
