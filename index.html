@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Okuma Arşivi</title>
+    <meta
+      name="description"
+      content="Okuduğun kitapları, düşüncelerini, özetlerini ve yazarlarını unutmamak için kişisel arşivin."
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="masthead">
+      <div class="wrap masthead-inner">
+        <div class="brand-row">
+          <div class="brand">
+            <span class="kicker">Kişisel Okuma Günlüğü</span>
+            <h1 class="title">Okuma <span class="ital">Arşivi</span></h1>
+            <p class="tagline">Okuduğun her kitap, hakkındaki düşüncelerin ve yazarları — unutmamak için bir yerde.</p>
+          </div>
+          <button class="theme-btn" id="themeBtn" title="Temayı değiştir" type="button">
+            <span id="themeIco">◐</span>
+            <span id="themeLbl">Tema</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <div class="wrap toolbar-inner">
+        <div class="tabs" role="tablist">
+          <button class="tab active" role="tab" aria-selected="true" data-view="books" id="tabBooks" type="button">
+            Kitaplık<span class="n" id="nBooks"></span>
+          </button>
+          <button class="tab" role="tab" aria-selected="false" data-view="authors" id="tabAuthors" type="button">
+            Yazarlar<span class="n" id="nAuthors"></span>
+          </button>
+        </div>
+
+        <div class="search" id="searchBox">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="7"></circle>
+            <path d="m21 21-4.3-4.3"></path>
+          </svg>
+          <input type="text" id="search" placeholder="Kitap veya yazar ara…" autocomplete="off" />
+        </div>
+
+        <select class="filter" id="statusFilter" aria-label="Duruma göre süz">
+          <option value="">Tüm durumlar</option>
+          <option value="okundu">Okundu</option>
+          <option value="okuyor">Okuyorum</option>
+          <option value="okunacak">Okunacak</option>
+        </select>
+
+        <button class="btn-add" id="addBtn" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+            <path d="M12 5v14M5 12h14"></path>
+          </svg>
+          <span id="addLbl">Kitap Ekle</span>
+        </button>
+      </div>
+    </div>
+
+    <main class="wrap" id="main">
+      <section id="booksView">
+        <div class="sec-head">
+          <h2 id="booksHeading">Kitaplık</h2>
+          <span class="rule"></span>
+          <span class="count" id="booksCount"></span>
+        </div>
+        <div class="grid" id="bookGrid"></div>
+        <div id="booksEmpty"></div>
+      </section>
+
+      <section id="authorsView" hidden>
+        <div class="sec-head">
+          <h2>Yazarlar</h2>
+          <span class="rule"></span>
+          <span class="count" id="authorsCount"></span>
+        </div>
+        <div class="agrid" id="authorGrid"></div>
+        <div id="authorsEmpty"></div>
+      </section>
+    </main>
+
+    <div class="overlay" id="overlay" hidden></div>
+    <div class="toast" id="toast"></div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
